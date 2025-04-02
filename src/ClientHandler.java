@@ -32,19 +32,29 @@ public class ClientHandler implements Runnable {
 
     private int getSelectedFileIndex() {
         try {
+            sendMessage("Enter the number of the file you want to download:");
             String in = input.readLine(); // Read user's choice
             return Integer.parseInt(in) - 1;
         } catch (IOException | NumberFormatException e) {
             e.printStackTrace();
+            sendMessage("Invalid selection. Please try again.");
             return -1; // Invalid selection
         }
     }
 
     private void sendMenu() {
-        StringBuilder menu = new StringBuilder("*** FILES ***\n");
         File[] fileList = new File(Server.FILES_PATH).listFiles();
 
+        // Handle case where no files are available
+        if (fileList == null || fileList.length == 0) {
+            sendMessage("0");
+            sendMessage("No files available.");
+            return;
+        }
+
         sendMessage("" + fileList.length); // Send number of files
+
+        StringBuilder menu = new StringBuilder("*** FILES ***\n");
         for (int i = 0; i < fileList.length; i++) {
             menu.append(String.format("%d. %s\n", i + 1, fileList[i].getName()));
         }
@@ -54,7 +64,7 @@ public class ClientHandler implements Runnable {
     private void sendSelectedFile(int index) {
         try {
             File[] fileList = new File(Server.FILES_PATH).listFiles();
-            if (index < 0 || index >= fileList.length) {
+            if (fileList == null || index < 0 || index >= fileList.length) {
                 sendMessage("Invalid file selection.");
                 return;
             }
@@ -62,7 +72,11 @@ public class ClientHandler implements Runnable {
             File selectedFile = fileList[index];
             List<String> fileLines = Files.readAllLines(selectedFile.toPath());
             String fileContent = String.join("\n", fileLines);
+
+            sendMessage("FILE START");
             sendMessage(fileContent);
+            sendMessage("FILE END");
+
         } catch (IOException e) {
             e.printStackTrace();
             sendMessage("Error reading file.");
@@ -72,7 +86,7 @@ public class ClientHandler implements Runnable {
     @Override
     public void run() {
         try {
-            sendMessage("Welcome! You are connected to the Server.");
+            //sendMessage("Welcome! You are connected to the Server.");
 
             String clientMessage;
             while ((clientMessage = input.readLine()) != null) {

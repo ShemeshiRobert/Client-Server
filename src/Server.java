@@ -5,7 +5,7 @@ import java.net.Socket;
 public class Server {
     public static final String FILES_PATH = "./files/server";
     private ServerSocket serverSocket;
-    private static final int PORT = 3030;
+    public static final int PORT = 3030;
 
     public Server(){
         try{
@@ -28,5 +28,9 @@ public class Server {
                 e.printStackTrace();
             }
         }
+    }
+
+    public static void main(String[] args) {
+        new Server();
     }
 }
